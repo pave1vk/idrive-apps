@@ -31,9 +31,8 @@
  *            shows, so `apply --panel high` rewrites the geometry to the
  *            displayed size (1088x480 px at 138x61 mm, view area the full
  *            frame) and the phone renders its cluster map at that size. The
- *            safe area, where the phone keeps its guidance UI, is the part of
- *            the frame the gauges and native readouts leave visible (504x368
- *            at 286,72). `--res WxH` picks another pixel size at the same
+ *            safe area, where the phone keeps its guidance UI, is tuned for
+ *            Yandex Maps (504x368 at 433,72). `--res WxH` picks another pixel size at the same
  *            physical size, `--safe` another safe area; `--res stock`, and
  *            `--panel mid`, keep the build's stock geometry.
  *
@@ -87,10 +86,9 @@ var PROVEN = {
  * pixel. Every geometry this tool writes has this physical size, which tells
  * it from a build's stock geometry. */
 var RES_DEFAULT = { w: 1088, h: 480, mmw: 138, mmh: 61 };
-/* The default safe area in the 1088x480 frame: x from BMW's own IC_MID safe
- * area (which lies inside the map area), y from below the native model badge
- * to inside the gauge mask's lower edge. Other --res sizes scale it. */
-var SAFE_DEFAULT = { x: 286, y: 72, w: 504, h: 368 };
+/* The default safe area in the 1088x480 frame: x tuned for Yandex Maps,
+ * y from below the native model badge to inside the gauge mask's lower edge. Other --res sizes scale it. */
+var SAFE_DEFAULT = { x: 433, y: 72, w: 504, h: 368 };
 var EDITS = ['variant', 'sink', 'selfstart', 'res'];
 
 function sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }

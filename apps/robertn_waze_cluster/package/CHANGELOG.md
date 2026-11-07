@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Recognize the Yandex Maps CarPlay safe area (504x368+433+72) as the
+default; older safe areas are offered an update. This area applies to all
+CarPlay navigation apps and may move their guidance banners.
+
 ## 0.6.4
 
 Map settings per driver profile, after eroobeeroo's #41. Show on, the HUD

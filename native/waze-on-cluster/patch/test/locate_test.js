@@ -143,6 +143,9 @@ try {
     ok('apply high: all four edits written', r.code === 0 && /patched OK/.test(r.out) && b.readUInt32LE(at.slot) === at.high &&
         b.toString('hex', at.call, at.call + 5) === at.callPatched && b.toString('latin1', at.sink, at.sink + 9) === 'udp://127' &&
         b.readUInt32LE(at.mm) === 138 && b.readUInt32LE(at.px) === 1088, r.out);
+    ok('apply high: default safe area is tuned for Yandex Maps',
+        b.readUInt32LE(at.safe1 + 4) === 504 && b.readUInt32LE(at.safe2) === 368 &&
+        b.readUInt16LE(at.safe2 + 4) === 433 && b.readUInt16LE(at.safe2 + 6) === 72);
     ok('apply high: the backup is the original', fs.readFileSync(tgt + '.woc-orig').equals(orig));
     r = run(['verify', '--target', tgt]);
     ok('verify: enabled', r.code === 0 && /OK: variant IC_HIGH, sink udp:\/\/127\.0\.0\.1:20557\?mime_type=video\/H264, self-start on, res 1088x480/.test(r.out), r.out);

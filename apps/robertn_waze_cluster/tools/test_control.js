@@ -548,10 +548,12 @@ test('an older full-frame safe area prompts CarPlay\'s Patch button, which write
     await until('applied', () => patch.count('apply') === 1 && !patch.busy);
     assert.strictEqual(patch.safe, SAFE);
     await until('current', () => c.statusText() === 'Status: Patched' && c.mapText() === 'Cluster map: Waiting for the phone');
+    patch._broadcast({ ev: 'status', state: 'patched', panel: 'high', mode: 'avb', res: '1088x480', safe: '504x368+286+72' });
+    await until('previous default needs update', () => c.statusText() === 'Status: Update needed');
     /* A daemon that omits safe (before the safe area) is taken as current. */
     patch._broadcast({ ev: 'status', state: 'patched', panel: 'high', mode: 'avb', res: '1088x480' });
     await until('older daemon', () => c.statusText() === 'Status: Patched' && c.mapText() === 'Cluster map: Waiting for the phone' && c.patchStatus.safe === undefined);
-    assert.strictEqual(SAFE, '504x368+286+72');
+    assert.strictEqual(SAFE, '504x368+433+72');
     c.close();
 });
 
