@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.6.8
+
 - Sync upstream releases through cluster-render 0.5.8 and require the fork tool with the Yandex Maps safe area.
 
 - Keep the Yandex Maps CarPlay safe area (504x368+433+72) as the default; older safe areas are offered an update. This area applies to all CarPlay navigation apps and may move their guidance banners.
