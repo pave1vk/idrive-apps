@@ -514,7 +514,9 @@ function ro(t) { return /\bro\b/.test(fs.readFileSync(t.mounts, 'utf8')); }
         !fs.existsSync(t.bin + '.woc-orig') && !fs.existsSync(t.conf + '.woc-orig') && ro(t), r.out);
     if (HAVE_CP) ok('deactivate: carplay restored byte-exact too', sha(t.carplay) === sha(CARPLAY));
 
-    /* Not supported, untested, absent: CarPlay is patched as ever. */
+    /* Not supported, untested, absent: CarPlay is patched as ever, except
+     * on a car not coded 7, where CarPlay's patch is left too, with the
+     * same conflict. */
     [['coding 9', function (u) { fs.writeFileSync(u.coding, coding(9)); }, /not supported on this car \(KI_KOMBI_VARIANT 9\)/],
      ['an untested aapd', function (u) { fs.writeFileSync(u.bin, UNPROVEN); }, /"conflict":"untested aapd build"/],
      ['an aapd the locator refuses', function (u) { var b = Buffer.from(SRC); b[LOC.gate.offset + 6] = 3; fs.writeFileSync(u.bin, b); }, /not patchable: gate: variant check not found/],
@@ -533,7 +535,9 @@ function ro(t) { return /\bro\b/.test(fs.readFileSync(t.mounts, 'utf8')); }
         var x = hook(u, 'activate');
         ok('activate with ' + c[0] + ': Android Auto left as it is, exit 0', x.code === 0 && c[2].test(JSON.stringify(x.result.aa)) &&
             (before === null || sha(u.bin) === before) && sha(u.conf) === confBefore && !marker(u, 'aa-pending'), x.out);
-        if (HAVE_CP) ok('activate with ' + c[0] + ': CarPlay patched as ever', /map patch written/.test(x.result.status) && sha(u.carplay) !== sha(CARPLAY), JSON.stringify(x.result));
+        if (HAVE_CP && c[0] === 'coding 9') ok('activate with ' + c[0] + ': CarPlay left as it is, the same conflict', x.result.conflict === 'not supported on this car (KI_KOMBI_VARIANT 9)' &&
+            sha(u.carplay) === sha(CARPLAY) && !marker(u, 'activation-pending'), JSON.stringify(x.result));
+        else if (HAVE_CP) ok('activate with ' + c[0] + ': CarPlay patched as ever', /map patch written/.test(x.result.status) && sha(u.carplay) !== sha(CARPLAY), JSON.stringify(x.result));
     });
 
     /* A running aapd keeps its file linked and is handed over at removal. */
@@ -1328,17 +1332,17 @@ async function recoveryTests() {
     fs.chmodSync(path.join(md, 'systemctl'), 0o755);
     fs.mkdirSync(path.join(md, 'state'));
     var mr = cp.spawnSync('sh', [path.join(PATCH, 'shutdown_mark.sh')], { env: Object.assign({}, process.env, { WOC_STATE_DIR: path.join(md, 'state'),
-        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }) });
+        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }), stdio: 'ignore' });
     ok('shutdown mark: a SIGKILLed aapd is stopped, a SIGKILLed carplay (no drop-in) failed', mr.status === 0 &&
         /^B stopped up \d+\n$/.test(fs.readFileSync(path.join(md, 'state', 'shutdown-aapd'), 'utf8')) && /^B failed up \d+\n$/.test(fs.readFileSync(path.join(md, 'state', 'shutdown'), 'utf8')));
     fs.writeFileSync(path.join(md, 'systemctl'), '#!/bin/sh\nprintf "ActiveState=failed\\nResult=signal\\nExecMainCode=2\\nExecMainStatus=90\\n"\n');
     cp.spawnSync('sh', [path.join(PATCH, 'shutdown_mark.sh')], { env: Object.assign({}, process.env, { WOC_STATE_DIR: path.join(md, 'state'),
-        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }) });
+        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }), stdio: 'ignore' });
     ok('shutdown mark: another signal end of aapd is failed', /^B failed up \d+\n$/.test(fs.readFileSync(path.join(md, 'state', 'shutdown-aapd'), 'utf8')));
     fs.writeFileSync(path.join(md, 'state', 'shutdown-aapd'), 'B stopped\n');
     fs.writeFileSync(path.join(md, 'systemctl'), '#!/bin/sh\nprintf "ActiveState=failed\\nResult=oom-kill\\nExecMainCode=2\\nExecMainStatus=9\\n"\n');
     cp.spawnSync('sh', [path.join(PATCH, 'shutdown_mark.sh')], { env: Object.assign({}, process.env, { WOC_STATE_DIR: path.join(md, 'state'),
-        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }) });
+        WOC_BOOT_ID: path.join(md, 'boot_id'), WOC_SYSTEMCTL: path.join(md, 'systemctl'), WOC_MARK_WAIT: '2' }), stdio: 'ignore' });
     ok('shutdown mark: an oom-killed aapd (status 9) is failed', /^B failed up \d+\n$/.test(fs.readFileSync(path.join(md, 'state', 'shutdown-aapd'), 'utf8')));
 
     ok('the units\' timeouts cover the restore bound', [/TimeoutStartSec=(\d+)/, /TimeoutStopSec=(\d+)/].every(function (re) {

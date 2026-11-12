@@ -2,11 +2,32 @@
 
 ## Unreleased
 
+- Sync upstream releases through cluster-render 0.5.8 and require the fork tool with the Yandex Maps safe area.
+
+- Keep the Yandex Maps CarPlay safe area (504x368+433+72) as the default; older safe areas are offered an update. This area applies to all CarPlay navigation apps and may move their guidance banners.
+
+## 0.6.7
+
+Keep HUD map over BMW's pop-ups, a checkbox in HUD. Unticked, the default,
+the HUD map steps aside while BMW's HUD media and list pop-ups show, such
+as the media source list, and comes back after they go; it
+never steps aside for route guidance. Ticked, it stays shown over them.
+Kept for the next start, and per driver profile with Own settings for this
+driver.
+
+## 0.6.6
+
+Show on gets **Off**: the map leaves the cluster
+and the HUD at once and BMW's own content comes back, with no CarPlay or
+Android Auto reconnect and no restart, for a phone that keeps sending its
+map after the route ends. Cluster, HUD or both again shows the map with
+the phone's next frame. Kept for the next start, and per driver profile
+with Own settings for this driver. While Off, the HUD's size and position
+and Hide BMW's turn box are greyed.
+
 ## 0.6.5
 
-Recognize the Yandex Maps CarPlay safe area (504x368+433+72) as the
-default; older safe areas are offered an update. This area applies to all
-CarPlay navigation apps and may move their guidance banners.
+The Store shows the app's icon while it is not installed.
 
 ## 0.6.4
 
